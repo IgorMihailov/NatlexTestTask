@@ -22,7 +22,7 @@ public class Section  {
     @NotNull
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "section")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "section", fetch = FetchType.EAGER)
     private List<GeologicalClass> geologicalClasses;
 
 }

@@ -1,6 +1,4 @@
 package com.task.GeologicalREST.service;
-
-import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.entity.Section;
 
 import java.util.List;

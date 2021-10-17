@@ -1,7 +1,11 @@
-package com.task.GeologicalREST.helper;
+package com.task.GeologicalREST.service;
 
 import com.task.GeologicalREST.entity.GeologicalClass;
+import com.task.GeologicalREST.entity.Job;
 import com.task.GeologicalREST.entity.Section;
+import com.task.GeologicalREST.repository.JobRepository;
+import com.task.GeologicalREST.repository.SectionRepository;
+import javassist.bytecode.ByteArray;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.ss.usermodel.Cell;
@@ -9,32 +13,47 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 
-public class ExcelHelper {
+@Service
+public class ExcelHelperServiceImpl implements ExcelHelperService{
     public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-    public static boolean hasExcelFormat(MultipartFile file) {
+    @Autowired
+    JobRepository jobRepository;
 
-        if (!TYPE.equals(file.getContentType())) {
-            return false;
-        }
+    @Autowired
+    SectionRepository sectionRepository;
 
-        return true;
-    }
+    ConcurrentHashMap<Long, ByteArrayOutputStream> exportFiles = new ConcurrentHashMap<>();
 
-    public static List<Section> excelToSections(InputStream is) {
+    @Async
+    @Override
+    public Future<Void> excelToSections(InputStream is, long jobId) {
         try {
+            Job job = new Job();
+            job.setState("IN PROGRESS");
+            job.setTask("Import");
+            job.setId(jobId);
+
+            job = jobRepository.save(job);
+
+            //Thread.sleep(10000);
             Workbook workbook = new XSSFWorkbook(is);
 
             Sheet sheet = workbook.getSheetAt(0);
@@ -98,15 +117,28 @@ public class ExcelHelper {
 
             workbook.close();
 
-            return sections;
+            sectionRepository.saveAll(sections);
+            job.setState("DONE");
+            jobRepository.save(job);
+            return new AsyncResult<>(null);
+
         } catch (IOException e) {
             throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
         }
     }
 
-    public static ByteArrayInputStream sectionsToExcel(List<Section> sections) throws Exception {
+    @Async
+    @Override
+    public Future<Void> sectionsToExcel(List<Section> sections, long jobId){
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+
+            Job job = new Job();
+            job.setState("IN PROGRESS");
+            job.setTask("Export");
+            job.setId(jobId);
+
+            job = jobRepository.save(job);
 
             // Create a new Excel sheet
             Sheet sheet = workbook.createSheet("Sections");
@@ -143,9 +175,25 @@ public class ExcelHelper {
             }
 
             workbook.write(out);
-            return new ByteArrayInputStream(out.toByteArray());
+            exportFiles.put(jobId, out);
+
+            job.setState("DONE");
+            jobRepository.save(job);
+
+            return new AsyncResult<>(null);
         } catch (IOException e) {
             throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ByteArrayOutputStream getFileById(long jobId) {
+
+        Optional<Job> job = jobRepository.findById(jobId);
+        if (job.get().getState().equals("DONE")) {
+            return exportFiles.get(jobId);
+        } else {
+            throw new RuntimeException("File isn't ready!");
         }
     }
 }
