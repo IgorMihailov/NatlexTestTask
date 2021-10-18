@@ -52,7 +52,6 @@ public class ExcelHelperService implements IExcelHelperService {
 
         try {
 
-            //Thread.sleep(10000);
             Workbook workbook = new XSSFWorkbook(is);
 
             Sheet sheet = workbook.getSheetAt(0);

@@ -25,7 +25,7 @@ public class FilesController {
 
         try {
             int jobId = fileService.importFile(file);
-            return ResponseEntity.status(HttpStatus.CREATED).body(Integer.toString(jobId));
+            return ResponseEntity.status(HttpStatus.CREATED).body("Job ID: " + jobId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Could not upload the file: " + file.getOriginalFilename() + "!");
         }
@@ -36,7 +36,7 @@ public class FilesController {
     public ResponseEntity<String> getImportJobState(@PathVariable long id) {
 
         String jobState = fileService.getJobState(id, JobTask.IMPORT.name());
-        return ResponseEntity.status(HttpStatus.CREATED).body(jobState);
+        return ResponseEntity.status(HttpStatus.OK).body(jobState);
 
     }
 
@@ -45,7 +45,7 @@ public class FilesController {
 
         try {
             int jobId = fileService.exportFile();
-            return ResponseEntity.status(HttpStatus.CREATED).body(Integer.toString(jobId));
+            return ResponseEntity.status(HttpStatus.CREATED).body("Job ID: " + jobId);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Could not export to file!");
@@ -56,7 +56,7 @@ public class FilesController {
     public ResponseEntity<String> getExportJobState(@PathVariable long id) {
 
         String jobState = fileService.getJobState(id, JobTask.EXPORT.name());
-        return ResponseEntity.status(HttpStatus.CREATED).body(jobState);
+        return ResponseEntity.status(HttpStatus.OK).body(jobState);
 
     }
 
