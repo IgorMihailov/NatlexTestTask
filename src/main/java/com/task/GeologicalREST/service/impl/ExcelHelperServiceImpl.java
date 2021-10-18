@@ -1,10 +1,13 @@
-package com.task.GeologicalREST.service;
+package com.task.GeologicalREST.service.impl;
 
 import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.entity.Job;
 import com.task.GeologicalREST.entity.Section;
+import com.task.GeologicalREST.enums.JobState;
+import com.task.GeologicalREST.enums.JobTask;
 import com.task.GeologicalREST.repository.JobRepository;
 import com.task.GeologicalREST.repository.SectionRepository;
+import com.task.GeologicalREST.service.ExcelHelperService;
 import javassist.bytecode.ByteArray;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -31,8 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 @Service
-public class ExcelHelperServiceImpl implements ExcelHelperService{
-    public static String TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+public class ExcelHelperServiceImpl implements ExcelHelperService {
 
     @Autowired
     JobRepository jobRepository;
@@ -47,8 +49,8 @@ public class ExcelHelperServiceImpl implements ExcelHelperService{
     public Future<Void> excelToSections(InputStream is, long jobId) {
         try {
             Job job = new Job();
-            job.setState("IN PROGRESS");
-            job.setTask("Import");
+            job.setState(JobState.IN_PROGRESS.name());
+            job.setTask(JobTask.IMPORT.name());
             job.setId(jobId);
 
             job = jobRepository.save(job);
@@ -118,7 +120,7 @@ public class ExcelHelperServiceImpl implements ExcelHelperService{
             workbook.close();
 
             sectionRepository.saveAll(sections);
-            job.setState("DONE");
+            job.setState(JobState.DONE.name());
             jobRepository.save(job);
             return new AsyncResult<>(null);
 
@@ -134,8 +136,8 @@ public class ExcelHelperServiceImpl implements ExcelHelperService{
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
 
             Job job = new Job();
-            job.setState("IN PROGRESS");
-            job.setTask("Export");
+            job.setState(JobState.IN_PROGRESS.name());
+            job.setTask(JobTask.EXPORT.name());
             job.setId(jobId);
 
             job = jobRepository.save(job);
@@ -177,7 +179,7 @@ public class ExcelHelperServiceImpl implements ExcelHelperService{
             workbook.write(out);
             exportFiles.put(jobId, out);
 
-            job.setState("DONE");
+            job.setState(JobState.DONE.name());
             jobRepository.save(job);
 
             return new AsyncResult<>(null);
@@ -190,7 +192,7 @@ public class ExcelHelperServiceImpl implements ExcelHelperService{
     public ByteArrayOutputStream getFileById(long jobId) {
 
         Optional<Job> job = jobRepository.findById(jobId);
-        if (job.get().getState().equals("DONE")) {
+        if (job.get().getState().equals(JobState.DONE.name())) {
             return exportFiles.get(jobId);
         } else {
             throw new RuntimeException("File isn't ready!");

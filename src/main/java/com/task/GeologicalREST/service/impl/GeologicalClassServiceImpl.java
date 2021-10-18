@@ -1,8 +1,9 @@
-package com.task.GeologicalREST.service;
+package com.task.GeologicalREST.service.impl;
 
 import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.entity.Section;
 import com.task.GeologicalREST.repository.GeologicalClassRepository;
+import com.task.GeologicalREST.service.GeologicalClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

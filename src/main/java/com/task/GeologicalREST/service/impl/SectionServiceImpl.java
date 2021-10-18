@@ -1,9 +1,10 @@
-package com.task.GeologicalREST.service;
+package com.task.GeologicalREST.service.impl;
 
 import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.entity.Section;
 import com.task.GeologicalREST.repository.GeologicalClassRepository;
 import com.task.GeologicalREST.repository.SectionRepository;
+import com.task.GeologicalREST.service.SectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class SectionServiceImpl implements SectionService{
+public class SectionServiceImpl implements SectionService {
 
     @Autowired
     SectionRepository sectionRepository;

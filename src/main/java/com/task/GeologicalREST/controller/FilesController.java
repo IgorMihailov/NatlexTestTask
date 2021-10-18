@@ -1,7 +1,8 @@
 package com.task.GeologicalREST.controller;
 
+import com.task.GeologicalREST.enums.JobTask;
 import com.task.GeologicalREST.message.ResponseMessage;
-import com.task.GeologicalREST.service.FileService;
+import com.task.GeologicalREST.service.impl.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -40,7 +41,7 @@ public class FilesController {
     @GetMapping("/import/{id}")
     public ResponseEntity<ResponseMessage> getImportJobState(@PathVariable long id) {
 
-        String jobState = fileService.getJobState(id, "Import");
+        String jobState = fileService.getJobState(id, JobTask.IMPORT.name());
         return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(jobState));
 
     }
@@ -62,7 +63,7 @@ public class FilesController {
     @GetMapping("/export/{id}")
     public ResponseEntity<ResponseMessage> getExportJobState(@PathVariable long id) {
 
-        String jobState = fileService.getJobState(id, "Export");
+        String jobState = fileService.getJobState(id, JobTask.EXPORT.name());
         return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(jobState));
 
     }
