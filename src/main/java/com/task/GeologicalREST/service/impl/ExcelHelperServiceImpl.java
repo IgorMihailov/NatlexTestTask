@@ -47,13 +47,15 @@ public class ExcelHelperServiceImpl implements ExcelHelperService {
     @Async
     @Override
     public Future<Void> excelToSections(InputStream is, long jobId) {
-        try {
-            Job job = new Job();
-            job.setState(JobState.IN_PROGRESS.name());
-            job.setTask(JobTask.IMPORT.name());
-            job.setId(jobId);
 
-            job = jobRepository.save(job);
+        Job job = new Job();
+        job.setState(JobState.IN_PROGRESS.name());
+        job.setTask(JobTask.IMPORT.name());
+        job.setId(jobId);
+
+        job = jobRepository.save(job);
+
+        try {
 
             //Thread.sleep(10000);
             Workbook workbook = new XSSFWorkbook(is);
@@ -125,6 +127,7 @@ public class ExcelHelperServiceImpl implements ExcelHelperService {
             return new AsyncResult<>(null);
 
         } catch (IOException e) {
+            job.setState(JobState.ERROR.name());
             throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
         }
     }
@@ -133,14 +136,14 @@ public class ExcelHelperServiceImpl implements ExcelHelperService {
     @Override
     public Future<Void> sectionsToExcel(List<Section> sections, long jobId){
 
+        Job job = new Job();
+        job.setState(JobState.IN_PROGRESS.name());
+        job.setTask(JobTask.EXPORT.name());
+        job.setId(jobId);
+
+        job = jobRepository.save(job);
+
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
-
-            Job job = new Job();
-            job.setState(JobState.IN_PROGRESS.name());
-            job.setTask(JobTask.EXPORT.name());
-            job.setId(jobId);
-
-            job = jobRepository.save(job);
 
             // Create a new Excel sheet
             Sheet sheet = workbook.createSheet("Sections");
@@ -178,12 +181,12 @@ public class ExcelHelperServiceImpl implements ExcelHelperService {
 
             workbook.write(out);
             exportFiles.put(jobId, out);
-
             job.setState(JobState.DONE.name());
             jobRepository.save(job);
 
             return new AsyncResult<>(null);
         } catch (IOException e) {
+            job.setState(JobState.ERROR.name());
             throw new RuntimeException("fail to import data to Excel file: " + e.getMessage());
         }
     }
