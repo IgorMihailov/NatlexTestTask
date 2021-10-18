@@ -3,7 +3,8 @@ package com.task.GeologicalREST.service.impl;
 import com.task.GeologicalREST.entity.Job;
 import com.task.GeologicalREST.repository.JobRepository;
 import com.task.GeologicalREST.repository.SectionRepository;
-import com.task.GeologicalREST.service.ExcelHelperService;
+import com.task.GeologicalREST.service.IExcelHelperService;
+import com.task.GeologicalREST.service.IFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,13 +15,13 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
-public class FileService {
+public class FileService implements IFileService {
 
     @Autowired
     SectionRepository sectionRepository;
 
     @Autowired
-    ExcelHelperService excelHelperService;
+    IExcelHelperService IExcelHelperService;
 
     @Autowired
     JobRepository jobRepository;
@@ -40,7 +41,7 @@ public class FileService {
         int jobId = counter.incrementAndGet();
 
         try {
-           excelHelperService.excelToSections(file.getInputStream(), jobId);
+           IExcelHelperService.excelToSections(file.getInputStream(), jobId);
         } catch (IOException e) {
             throw new RuntimeException("fail to store excel data: " + e.getMessage());
         }
@@ -52,7 +53,7 @@ public class FileService {
         int jobId = counter.incrementAndGet();
 
         try {
-            excelHelperService.sectionsToExcel(sectionRepository.findAll(), jobId);
+            IExcelHelperService.sectionsToExcel(sectionRepository.findAll(), jobId);
         } catch (Exception e) {
             throw new RuntimeException("fail to export excel data: " + e.getMessage());
         }
@@ -61,7 +62,7 @@ public class FileService {
     }
 
     public ByteArrayOutputStream getFile(long id) {
-        return excelHelperService.getFileById(id);
+        return IExcelHelperService.getFileById(id);
     }
 
 }

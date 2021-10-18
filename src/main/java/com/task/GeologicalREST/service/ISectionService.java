@@ -3,7 +3,7 @@ import com.task.GeologicalREST.entity.Section;
 
 import java.util.List;
 
-public interface SectionService {
+public interface ISectionService {
 
     Section saveSection(Section section);
     Section findSectionById(long id);

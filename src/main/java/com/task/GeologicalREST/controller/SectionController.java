@@ -1,29 +1,25 @@
 package com.task.GeologicalREST.controller;
 
-import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.entity.Section;
-import com.task.GeologicalREST.service.GeologicalClassService;
-import com.task.GeologicalREST.service.SectionService;
+import com.task.GeologicalREST.service.IGeologicalClassService;
+import com.task.GeologicalREST.service.ISectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/sections")
 public class SectionController {
 
     @Autowired
-    private SectionService sectionService;
+    private ISectionService sectionService;
 
     @Autowired
-    private GeologicalClassService geologicalClassService;
+    private IGeologicalClassService IGeologicalClassService;
 
     @PostMapping
     public ResponseEntity<String> addSection(@Valid @RequestBody Section section) {
@@ -43,7 +39,7 @@ public class SectionController {
     @GetMapping("/by-code")
     public ResponseEntity<List<Section>> getSectionByName(@RequestParam("code") String code){
 
-        return ResponseEntity.ok(geologicalClassService.findSectionsByGeoClassesCode(code));
+        return ResponseEntity.ok(IGeologicalClassService.findSectionsByGeoClassesCode(code));
 
     }
 

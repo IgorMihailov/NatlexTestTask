@@ -3,7 +3,9 @@ package com.task.GeologicalREST.service.impl;
 import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.entity.Section;
 import com.task.GeologicalREST.repository.GeologicalClassRepository;
-import com.task.GeologicalREST.service.GeologicalClassService;
+import com.task.GeologicalREST.repository.SectionRepository;
+import com.task.GeologicalREST.service.IGeologicalClassService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,14 +14,34 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class GeologicalClassServiceImpl implements GeologicalClassService {
+public class GeologicalClassService implements IGeologicalClassService {
 
     @Autowired
     GeologicalClassRepository geologicalClassRepository;
 
+    @Autowired
+    SectionRepository sectionRepository;
+
     @Override
-    public GeologicalClass saveGeoClass(GeologicalClass geoClass) {
-        return geologicalClassRepository.save(geoClass);
+    public void saveGeoClass(GeologicalClass geoClass, long sectionId) throws NotFoundException {
+
+        Optional<Section> section = sectionRepository.findById(sectionId);
+
+        if (section.isPresent()) {
+
+            // Add geoClass to section
+            Section updSection = section.get();
+            List<GeologicalClass> geoClasses = updSection.getGeologicalClasses();
+
+            geoClass.setSection(updSection);
+
+            geoClasses.add(geoClass);
+            updSection.setGeologicalClasses(geoClasses);
+            sectionRepository.save(updSection);
+
+        } else {
+            throw new NotFoundException("Section not found");
+        }
     }
 
     @Override
@@ -54,7 +76,7 @@ public class GeologicalClassServiceImpl implements GeologicalClassService {
 
         oldGeoClass.setName(newGeoClass.getName());
         oldGeoClass.setCode(newGeoClass.getName());
-        saveGeoClass(oldGeoClass);
+        geologicalClassRepository.save(oldGeoClass);
 
         return true;
     }
@@ -62,7 +84,7 @@ public class GeologicalClassServiceImpl implements GeologicalClassService {
     @Override
     public List<Section> findSectionsByGeoClassesCode(String code) {
 
-        // Select Geological Classes by code and convert its Sections to List
+        // Select geological classes by code and convert its Sections to List
         return geologicalClassRepository.findByCode(code).stream()
                 .map((g) -> g.getSection())
                 .collect(Collectors.toList());

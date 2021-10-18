@@ -2,12 +2,13 @@ package com.task.GeologicalREST.service;
 
 import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.entity.Section;
+import javassist.NotFoundException;
 
 import java.util.List;
 
-public interface GeologicalClassService {
+public interface IGeologicalClassService {
 
-    GeologicalClass saveGeoClass(GeologicalClass geoClass);
+    void saveGeoClass(GeologicalClass geoClass, long sectionId) throws NotFoundException;
     GeologicalClass findGeoClassById(long id);
     List<GeologicalClass> findAllGeoClasses();
     void deleteGeoClassById(long id);

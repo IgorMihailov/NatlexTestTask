@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public interface ExcelHelperService {
+public interface IExcelHelperService {
 
     Future<Void> excelToSections(InputStream is, long jobId);
     Future<Void> sectionsToExcel(List<Section> sections, long jobId);

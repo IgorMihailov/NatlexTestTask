@@ -1,7 +1,6 @@
 package com.task.GeologicalREST.controller;
 
 import com.task.GeologicalREST.enums.JobTask;
-import com.task.GeologicalREST.message.ResponseMessage;
 import com.task.GeologicalREST.service.impl.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -22,49 +21,42 @@ public class FilesController {
     FileService fileService;
 
     @PostMapping("/import")
-    public ResponseEntity<ResponseMessage> launchImport(@RequestParam("file") MultipartFile file) {
-
-        String message = "";
+    public ResponseEntity<String> launchImport(@RequestParam("file") MultipartFile file) {
 
         try {
-
             int jobId = fileService.importFile(file);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(Integer.toString(jobId)));
-
+            return ResponseEntity.status(HttpStatus.CREATED).body(Integer.toString(jobId));
         } catch (Exception e) {
-            message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Could not upload the file: " + file.getOriginalFilename() + "!");
         }
 
     }
 
     @GetMapping("/import/{id}")
-    public ResponseEntity<ResponseMessage> getImportJobState(@PathVariable long id) {
+    public ResponseEntity<String> getImportJobState(@PathVariable long id) {
 
         String jobState = fileService.getJobState(id, JobTask.IMPORT.name());
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(jobState));
+        return ResponseEntity.status(HttpStatus.CREATED).body(jobState);
 
     }
 
     @GetMapping("/export")
-    public ResponseEntity<ResponseMessage> launchExport() {
-        String message = "";
+    public ResponseEntity<String> launchExport() {
 
         try {
             int jobId = fileService.exportFile();
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(Integer.toString(jobId)));
+            return ResponseEntity.status(HttpStatus.CREATED).body(Integer.toString(jobId));
 
         } catch (Exception e) {
-            message = "Could not export to file the file!";
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Could not export to file!");
         }
     }
 
     @GetMapping("/export/{id}")
-    public ResponseEntity<ResponseMessage> getExportJobState(@PathVariable long id) {
+    public ResponseEntity<String> getExportJobState(@PathVariable long id) {
 
         String jobState = fileService.getJobState(id, JobTask.EXPORT.name());
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(jobState));
+        return ResponseEntity.status(HttpStatus.CREATED).body(jobState);
 
     }
 

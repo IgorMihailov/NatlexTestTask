@@ -7,10 +7,7 @@ import com.task.GeologicalREST.enums.JobState;
 import com.task.GeologicalREST.enums.JobTask;
 import com.task.GeologicalREST.repository.JobRepository;
 import com.task.GeologicalREST.repository.SectionRepository;
-import com.task.GeologicalREST.service.ExcelHelperService;
-import javassist.bytecode.ByteArray;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
+import com.task.GeologicalREST.service.IExcelHelperService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -20,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 @Service
-public class ExcelHelperServiceImpl implements ExcelHelperService {
+public class ExcelHelperService implements IExcelHelperService {
 
     @Autowired
     JobRepository jobRepository;
