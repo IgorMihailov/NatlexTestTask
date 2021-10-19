@@ -87,6 +87,7 @@ public class GeologicalClassService implements IGeologicalClassService {
         // Select geological classes by code and convert its Sections to List
         return geologicalClassRepository.findByCode(code).stream()
                 .map((g) -> g.getSection())
+                .distinct()
                 .collect(Collectors.toList());
     }
 
