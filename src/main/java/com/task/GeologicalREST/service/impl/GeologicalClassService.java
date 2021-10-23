@@ -55,16 +55,6 @@ public class GeologicalClassService implements IGeologicalClassService {
     }
 
     @Override
-    public void deleteGeoClassById(long id) {
-        geologicalClassRepository.deleteById(id);
-    }
-
-    @Override
-    public void deleteAllGeoClasses() {
-        geologicalClassRepository.deleteAll();
-    }
-
-    @Override
     public boolean updateGeoClass(Long id, GeologicalClass newGeoClass) {
         Optional<GeologicalClass> oldData = geologicalClassRepository.findById(id);
 
@@ -86,7 +76,7 @@ public class GeologicalClassService implements IGeologicalClassService {
 
         // Select geological classes by code and convert its Sections to List
         return geologicalClassRepository.findByCode(code).stream()
-                .map((g) -> g.getSection())
+                .map(GeologicalClass::getSection)
                 .distinct()
                 .collect(Collectors.toList());
     }

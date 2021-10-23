@@ -12,6 +12,4 @@ public interface ISectionService {
     void deleteAllSections();
     boolean updateSection(Long id, Section newData);
 
-
-
 }

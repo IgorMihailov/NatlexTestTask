@@ -3,7 +3,7 @@ package com.task.GeologicalREST;
 import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.entity.Section;
 import com.task.GeologicalREST.repository.SectionRepository;
-import com.task.GeologicalREST.service.impl.SectionService;
+import com.task.GeologicalREST.service.ISectionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class SectionServiceTest {
 
     @Autowired
-    private SectionService sectionService;
+    private ISectionService sectionService;
 
     @Autowired
     private SectionRepository sectionRepository;
@@ -46,10 +46,14 @@ public class SectionServiceTest {
     public void updateSection() {
 
         Section savedSection = sectionRepository.save(generateSection());
-        savedSection.setName("UPDATED");
-        boolean resultOfUpdate = sectionService.updateSection(savedSection.getId(), savedSection);
 
-        Assertions.assertTrue(resultOfUpdate);
+        String newName = "UpdatedSection";
+        savedSection.setName(newName);
+        sectionService.updateSection(savedSection.getId(), savedSection);
+
+        Optional<Section> updatedSection = sectionRepository.findById(savedSection.getId());
+
+        Assertions.assertEquals(updatedSection.get().getName(), newName);
 
     }
 

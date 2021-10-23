@@ -16,58 +16,35 @@ import java.util.List;
 public class GeologicalClassController {
 
     @Autowired
-    IGeologicalClassService IGeologicalClassService;
+    IGeologicalClassService geologicalClassService;
 
     @PostMapping("/{sectionId}")
     public ResponseEntity<String> addGeoClass(@Valid @RequestBody GeologicalClass geoClass, @PathVariable long sectionId) throws NotFoundException {
 
-        IGeologicalClassService.saveGeoClass(geoClass, sectionId);
+        geologicalClassService.saveGeoClass(geoClass, sectionId);
         return new ResponseEntity<>("Saved successfully", HttpStatus.OK);
 
     }
 
     @GetMapping("/")
     public ResponseEntity<List<GeologicalClass>> getAllGeoClasses(){
-        return ResponseEntity.ok(IGeologicalClassService.findAllGeoClasses());
+        return ResponseEntity.ok(geologicalClassService.findAllGeoClasses());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<GeologicalClass> getGeoClassById(@PathVariable long id){
-        return ResponseEntity.ok(IGeologicalClassService.findGeoClassById(id));
+        return ResponseEntity.ok(geologicalClassService.findGeoClassById(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateSection(@PathVariable("id") long id, @RequestBody GeologicalClass geoClass) {
 
-        boolean updResult = IGeologicalClassService.updateGeoClass(id, geoClass);
+        boolean updResult = geologicalClassService.updateGeoClass(id, geoClass);
 
         if (updResult) {
             return new ResponseEntity<>("Updated", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Geological class not found", HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteGeoClass(@PathVariable("id") long id) {
-
-        try {
-            IGeologicalClassService.deleteGeoClassById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
-
-    @DeleteMapping("/")
-    public ResponseEntity<HttpStatus> deleteAllGeoClasses() {
-
-        try {
-            IGeologicalClassService.deleteAllGeoClasses();
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

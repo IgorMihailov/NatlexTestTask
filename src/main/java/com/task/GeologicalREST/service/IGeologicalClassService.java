@@ -11,8 +11,6 @@ public interface IGeologicalClassService {
     void saveGeoClass(GeologicalClass geoClass, long sectionId) throws NotFoundException;
     GeologicalClass findGeoClassById(long id);
     List<GeologicalClass> findAllGeoClasses();
-    void deleteGeoClassById(long id);
-    void deleteAllGeoClasses();
     boolean updateGeoClass(Long id, GeologicalClass geologicalClass);
     List<Section> findSectionsByGeoClassesCode(String code);
 }
