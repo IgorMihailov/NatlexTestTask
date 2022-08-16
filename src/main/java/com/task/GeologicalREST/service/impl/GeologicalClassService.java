@@ -6,7 +6,6 @@ import com.task.GeologicalREST.repository.GeologicalClassRepository;
 import com.task.GeologicalREST.repository.SectionRepository;
 import com.task.GeologicalREST.service.IGeologicalClassService;
 import javassist.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,14 +15,17 @@ import java.util.stream.Collectors;
 @Service
 public class GeologicalClassService implements IGeologicalClassService {
 
-    @Autowired
-    GeologicalClassRepository geologicalClassRepository;
+    private final GeologicalClassRepository geologicalClassRepository;
 
-    @Autowired
-    SectionRepository sectionRepository;
+    private final SectionRepository sectionRepository;
+
+    public GeologicalClassService(GeologicalClassRepository geologicalClassRepository, SectionRepository sectionRepository) {
+        this.geologicalClassRepository = geologicalClassRepository;
+        this.sectionRepository = sectionRepository;
+    }
 
     @Override
-    public void saveGeoClass(GeologicalClass geoClass, long sectionId) throws NotFoundException {
+    public GeologicalClass saveGeoClass(GeologicalClass geoClass, long sectionId) throws NotFoundException {
 
         Optional<Section> section = sectionRepository.findById(sectionId);
 
@@ -38,6 +40,7 @@ public class GeologicalClassService implements IGeologicalClassService {
             geoClasses.add(geoClass);
             updSection.setGeologicalClasses(geoClasses);
             sectionRepository.save(updSection);
+            return geoClass;
 
         } else {
             throw new NotFoundException("Section not found");
@@ -55,20 +58,18 @@ public class GeologicalClassService implements IGeologicalClassService {
     }
 
     @Override
-    public boolean updateGeoClass(Long id, GeologicalClass newGeoClass) {
+    public GeologicalClass updateGeoClass(Long id, GeologicalClass newGeoClass) {
         Optional<GeologicalClass> oldData = geologicalClassRepository.findById(id);
 
-        if (oldData.isEmpty()) {
-            return false;
-        }
+//        if (oldData.isEmpty()) {
+//            //throw new NotFoundException();
+//        }
 
         GeologicalClass oldGeoClass = oldData.get();
 
         oldGeoClass.setName(newGeoClass.getName());
         oldGeoClass.setCode(newGeoClass.getName());
-        geologicalClassRepository.save(oldGeoClass);
-
-        return true;
+        return geologicalClassRepository.save(oldGeoClass);
     }
 
     @Override

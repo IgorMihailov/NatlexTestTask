@@ -3,7 +3,6 @@ package com.task.GeologicalREST.controller;
 import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.service.IGeologicalClassService;
 import javassist.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,37 +14,30 @@ import java.util.List;
 @RequestMapping("/api/geo_classes")
 public class GeologicalClassController {
 
-    @Autowired
-    IGeologicalClassService geologicalClassService;
+    private final IGeologicalClassService geologicalClassService;
 
-    @PostMapping("/{sectionId}")
-    public ResponseEntity<String> addGeoClass(@Valid @RequestBody GeologicalClass geoClass, @PathVariable long sectionId) throws NotFoundException {
-
-        geologicalClassService.saveGeoClass(geoClass, sectionId);
-        return new ResponseEntity<>("Saved successfully", HttpStatus.OK);
-
+    public GeologicalClassController(IGeologicalClassService geologicalClassService) {
+        this.geologicalClassService = geologicalClassService;
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<GeologicalClass>> getAllGeoClasses(){
-        return ResponseEntity.ok(geologicalClassService.findAllGeoClasses());
+    @PostMapping("/{sectionId}")
+    public GeologicalClass addGeoClass(@Valid @RequestBody GeologicalClass geoClass, @PathVariable long sectionId) throws NotFoundException {
+        return geologicalClassService.saveGeoClass(geoClass, sectionId);
+    }
+
+    @GetMapping
+    public List<GeologicalClass> getAllGeoClasses(){
+        return geologicalClassService.findAllGeoClasses();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GeologicalClass> getGeoClassById(@PathVariable long id){
-        return ResponseEntity.ok(geologicalClassService.findGeoClassById(id));
+    public GeologicalClass getGeoClassById(@PathVariable long id){
+        return geologicalClassService.findGeoClassById(id);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateSection(@PathVariable("id") long id, @RequestBody GeologicalClass geoClass) {
-
-        boolean updResult = geologicalClassService.updateGeoClass(id, geoClass);
-
-        if (updResult) {
-            return new ResponseEntity<>("Updated", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Geological class not found", HttpStatus.NOT_FOUND);
-        }
+    public GeologicalClass updateSection(@PathVariable("id") long id, @RequestBody GeologicalClass geoClass) {
+        return geologicalClassService.updateGeoClass(id, geoClass);
     }
 
 }
