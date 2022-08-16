@@ -13,7 +13,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -31,11 +30,14 @@ import java.util.concurrent.Future;
 @Service
 public class ExcelHelperService implements IExcelHelperService {
 
-    @Autowired
-    JobRepository jobRepository;
+    private final JobRepository jobRepository;
 
-    @Autowired
-    SectionRepository sectionRepository;
+    private final SectionRepository sectionRepository;
+
+    public ExcelHelperService(JobRepository jobRepository, SectionRepository sectionRepository) {
+        this.jobRepository = jobRepository;
+        this.sectionRepository = sectionRepository;
+    }
 
     ConcurrentHashMap<Long, ByteArrayOutputStream> exportFiles = new ConcurrentHashMap<>();
 

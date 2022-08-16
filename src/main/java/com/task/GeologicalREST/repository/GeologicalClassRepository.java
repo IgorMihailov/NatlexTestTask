@@ -6,7 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface GeologicalClassRepository extends JpaRepository<GeologicalClass, Long> {
-
     List<GeologicalClass> findByCode(String code);
-
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -23,6 +24,6 @@ public class Section  {
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "section", fetch = FetchType.EAGER)
-    private List<GeologicalClass> geologicalClasses;
+    private List<GeologicalClass> geologicalClasses = new ArrayList<>();
 
 }

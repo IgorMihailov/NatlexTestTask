@@ -7,10 +7,9 @@ import javassist.NotFoundException;
 import java.util.List;
 
 public interface IGeologicalClassService {
-
-    void saveGeoClass(GeologicalClass geoClass, long sectionId) throws NotFoundException;
+    GeologicalClass saveGeoClass(GeologicalClass geoClass, long sectionId) throws NotFoundException;
     GeologicalClass findGeoClassById(long id);
     List<GeologicalClass> findAllGeoClasses();
-    boolean updateGeoClass(Long id, GeologicalClass geologicalClass);
+    GeologicalClass updateGeoClass(Long id, GeologicalClass geologicalClass);
     List<Section> findSectionsByGeoClassesCode(String code);
 }

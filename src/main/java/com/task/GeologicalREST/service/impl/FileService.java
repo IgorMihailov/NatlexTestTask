@@ -5,7 +5,6 @@ import com.task.GeologicalREST.repository.JobRepository;
 import com.task.GeologicalREST.repository.SectionRepository;
 import com.task.GeologicalREST.service.IExcelHelperService;
 import com.task.GeologicalREST.service.IFileService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,16 +16,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class FileService implements IFileService {
 
-    @Autowired
-    SectionRepository sectionRepository;
+    private final SectionRepository sectionRepository;
 
-    @Autowired
-    IExcelHelperService IExcelHelperService;
+    private final IExcelHelperService IExcelHelperService;
 
-    @Autowired
-    JobRepository jobRepository;
+    private final JobRepository jobRepository;
 
-    AtomicInteger counter = new AtomicInteger();
+    private final AtomicInteger counter = new AtomicInteger();
+
+    public FileService(SectionRepository sectionRepository,
+                       IExcelHelperService IExcelHelperService,
+                       JobRepository jobRepository) {
+        this.sectionRepository = sectionRepository;
+        this.IExcelHelperService = IExcelHelperService;
+        this.jobRepository = jobRepository;
+    }
 
     public String getJobState(long id, String task) {
         Optional<Job> job = jobRepository.findById(id);
@@ -39,7 +43,6 @@ public class FileService implements IFileService {
 
     public int importFile(MultipartFile file){
         int jobId = counter.incrementAndGet();
-
         try {
            IExcelHelperService.excelToSections(file.getInputStream(), jobId);
         } catch (IOException e) {
@@ -51,7 +54,6 @@ public class FileService implements IFileService {
 
     public int exportFile() {
         int jobId = counter.incrementAndGet();
-
         try {
             IExcelHelperService.sectionsToExcel(sectionRepository.findAll(), jobId);
         } catch (Exception e) {
