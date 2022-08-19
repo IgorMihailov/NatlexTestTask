@@ -1,94 +1,73 @@
 package com.task.GeologicalREST;
 
-import com.task.GeologicalREST.entity.GeologicalClass;
+import static org.mockito.Mockito.*;
 import com.task.GeologicalREST.entity.Section;
 import com.task.GeologicalREST.repository.SectionRepository;
 import com.task.GeologicalREST.service.ISectionService;
+import com.task.GeologicalREST.service.impl.SectionService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class SectionServiceTest {
 
-    @Autowired
-    private ISectionService sectionService;
-
-    @Autowired
+    @Mock
     private SectionRepository sectionRepository;
 
-    @Test
-    public void createSection() {
+    @Mock
+    private ISectionService sectionService;
 
-        Section section = generateSection();
-        Section savedSection = sectionService.saveSection(section);
+    private Section section;
 
-        Assertions.assertEquals(section, savedSection);
+    private static final String SECTION_NAME = "Section";
 
+    private static final String SECTION_NEW_NAME = "UpdatedSection";
+
+    @BeforeEach
+    public void init() {
+        sectionService = new SectionService(sectionRepository);
+        section = generateSection();
     }
 
     @Test
-    public void readSection() {
-
-        Section savedSection = sectionRepository.save(generateSection());
-        Section readSection = sectionService.findSectionById(savedSection.getId());
-
-        Assertions.assertNotNull(readSection);
-
+    public void createSection() {
+        when(sectionRepository.save(section)).thenReturn(section);
+        Section savedSection = sectionService.saveSection(section);
+        verify(sectionRepository, times(1)).save(section);
+        Assertions.assertEquals(section, savedSection);
     }
 
     @Test
     public void updateSection() {
-
-        Section savedSection = sectionRepository.save(generateSection());
-
-        String newName = "UpdatedSection";
-        savedSection.setName(newName);
+        when(sectionRepository.save(section)).thenReturn(section);
+        when(sectionRepository.findById(section.getId())).thenReturn(Optional.ofNullable(section));
+        Section savedSection = sectionService.saveSection(section);
+        savedSection.setName(SECTION_NEW_NAME);
         sectionService.updateSection(savedSection.getId(), savedSection);
-
         Optional<Section> updatedSection = sectionRepository.findById(savedSection.getId());
-
-        Assertions.assertEquals(updatedSection.get().getName(), newName);
-
+        Assertions.assertEquals(updatedSection.get().getName(), SECTION_NEW_NAME);
+        verify(sectionRepository, times(2)).save(section);
+        verify(sectionRepository, times(2)).findById(section.getId());
     }
 
     @Test
     public void deleteSection() {
-
-        Section savedSection = sectionRepository.save(generateSection());
+        when(sectionRepository.save(section)).thenReturn(section);
+        Section savedSection = sectionRepository.save(section);
         sectionService.deleteSectionById(savedSection.getId());
-
-        Optional<Section> deletedSection = sectionRepository.findById(savedSection.getId());
-
-        Assertions.assertTrue(deletedSection.isEmpty());
-
+        verify(sectionRepository, times(1)).deleteById(section.getId());
     }
 
     private Section generateSection() {
-
         Section section = new Section();
-        section.setName("Section1");
-
-        List<GeologicalClass> geoClasses = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-
-            GeologicalClass geoClass = new GeologicalClass();
-            geoClass.setName("GeoClass " + i);
-            geoClass.setCode("GC" + i);
-            geoClass.setSection(section);
-
-            geoClasses.add(geoClass);
-
-        }
-
-        section.setGeologicalClasses(geoClasses);
-        return  section;
-
+        section.setName(SECTION_NAME);
+        return section;
     }
 
 }
