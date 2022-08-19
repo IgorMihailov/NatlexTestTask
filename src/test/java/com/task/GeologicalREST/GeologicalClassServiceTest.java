@@ -1,133 +1,98 @@
 package com.task.GeologicalREST;
 
+import static org.mockito.Mockito.*;
 import com.task.GeologicalREST.entity.GeologicalClass;
 import com.task.GeologicalREST.entity.Section;
 import com.task.GeologicalREST.repository.GeologicalClassRepository;
 import com.task.GeologicalREST.repository.SectionRepository;
 import com.task.GeologicalREST.service.IGeologicalClassService;
+import com.task.GeologicalREST.service.impl.GeologicalClassService;
 import javassist.NotFoundException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.Assert;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class GeologicalClassServiceTest {
 
-    @Autowired
+    @Mock
     private IGeologicalClassService geologicalClassService;
 
-    @Autowired
+    @Mock
     private GeologicalClassRepository geologicalClassRepository;
 
-    @Autowired
+    @Mock
     private SectionRepository sectionRepository;
+
+    private Section section;
+
+    private GeologicalClass geologicalClass;
+
+    private static final String SECTION_NAME = "Section";
+
+    private static final String GEOCLASS_NAME = "GeoClass";
+
+    private static final String GEOCLASS_NEW_NAME = "GeoClass1";
+
+    @BeforeEach
+    public void init() {
+        geologicalClassService = new GeologicalClassService(geologicalClassRepository, sectionRepository);
+        section = generateSection();
+        geologicalClass = generateGeoClass(section);
+        geologicalClass.setSection(section);
+    }
 
     @Test
     public void createGeologicalClass() throws NotFoundException {
+        when(sectionRepository.findById(section.getId())).thenReturn(Optional.ofNullable(section));
+        when(geologicalClassRepository.save(geologicalClass)).thenReturn(geologicalClass);
 
-        Section section = generateSection();
-        sectionRepository.save(section);
-
-        GeologicalClass geoClass = generateGeoClass();
-
-        geologicalClassService.saveGeoClass(geoClass, section.getId());
-
+        geologicalClassService.saveGeoClass(geologicalClass, section.getId());
+        verify(geologicalClassRepository).save(geologicalClass);
     }
 
     @Test
     public void createGeologicalClassWrongSection() {
-
         Assertions.assertThrows(NotFoundException.class, () -> {
-            GeologicalClass geoClass = generateGeoClass();
-            geologicalClassService.saveGeoClass(geoClass, 123);
+            geologicalClassService.saveGeoClass(geologicalClass, 123);
         });
-
     }
 
     @Test
-    public void readGeologicalClass() {
-
-        Section section = generateSection();
-        sectionRepository.save(section);
-
-        GeologicalClass geoClass = generateGeoClass();
-        geoClass.setSection(section);
-
-        geologicalClassRepository.save(geoClass);
-        GeologicalClass savedGeoClass = geologicalClassService.findGeoClassById(geoClass.getId());
-
-        Assertions.assertNotNull(savedGeoClass);
-
-    }
-
-    @Test
-    public void updateGeologicalClass() {
-
-        Section section = generateSection();
-        sectionRepository.save(section);
-
-        GeologicalClass geoClass = generateGeoClass();
-        geoClass.setSection(section);
-
-        geologicalClassRepository.save(geoClass);
-
-        String newName = "UpdatedSection";
-        geoClass.setName(newName);
-        geologicalClassService.updateGeoClass(geoClass.getId(), geoClass);
-
-        Optional<GeologicalClass> updatedGeoClass = geologicalClassRepository.findById(geoClass.getId());
-
-        Assertions.assertEquals(newName, updatedGeoClass.get().getName());
-
-    }
-
-    @Test
-    public void sectionsByGeoClassCode() {
-
-        for (int i = 0; i < 5; i++) {
-
-            Section section = generateSection();
-            section.getGeologicalClasses().add(generateGeoClass());
-            sectionRepository.save(section);
-
-        }
-
-        Section section = generateSection();
-        GeologicalClass geoClass = generateGeoClass();
-        geoClass.setCode("GC2");
-        sectionRepository.save(section);
-
-        List<Section> sections = geologicalClassService.findSectionsByGeoClassesCode("GC1");
-        Assertions.assertEquals(5, sections.size());
-
+    public void updateGeologicalClass() throws NotFoundException {
+        when(sectionRepository.findById(section.getId())).thenReturn(Optional.ofNullable(section));
+        when(geologicalClassRepository.save(geologicalClass)).thenReturn(geologicalClass);
+        when(geologicalClassRepository.findById(geologicalClass.getId())).thenReturn(Optional.ofNullable(geologicalClass));
+        GeologicalClass savedClass = geologicalClassService.saveGeoClass(geologicalClass, section.getId());
+        savedClass.setName(GEOCLASS_NEW_NAME);
+        geologicalClassService.updateGeoClass(savedClass.getId(), savedClass);
+        Optional<GeologicalClass> updatedSection = geologicalClassRepository.findById(geologicalClass.getId());
+        Assertions.assertEquals(updatedSection.get().getName(), GEOCLASS_NEW_NAME);
+        verify(geologicalClassRepository, times(2)).save(geologicalClass);
+        verify(geologicalClassRepository, times(2)).findById(geologicalClass.getId());
     }
 
     private Section generateSection() {
-
         Section section = new Section();
-        section.setName("Section1");
-
+        section.setName(SECTION_NAME);
         List<GeologicalClass> geoClasses = new ArrayList<>();
-
         section.setGeologicalClasses(geoClasses);
-        return  section;
-
+        return section;
     }
 
-    private GeologicalClass generateGeoClass() {
-
+    private GeologicalClass generateGeoClass(Section section) {
         GeologicalClass geoClass = new GeologicalClass();
-        geoClass.setName("GeoClass1");
+        geoClass.setName(GEOCLASS_NAME);
         geoClass.setCode("GC1");
-
+        geoClass.setSection(section);
         return geoClass;
-
     }
 
 }
